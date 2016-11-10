@@ -1,0 +1,65 @@
+Introducción a Go
+I meetup Gophers Murcia
+2 Nov 2016
+Tags: go, golang, gopher, intro
+
+Antonio Nicolás Pina
+hi@anpez.es
+http://anpez.es
+@ANPez
+
+* Go 1.0 publicado en Marzo de 2012
+.image images/gopherbw.png 300 300
+
+* Lenguaje para desarrolladores
+- En 2007, varios desarrolladores de Google se plantean la necesidad de un nuevo lenguaje de programación.
+- No ha habido grandes avances en casi una década.
+- PHP nació en el año 1995
+- Ruby también fue creado en 1995
+- ¿JavaScript? 1995.
+- En 2009 Google presenta oficialmente Go, aunque la versión estable tardaría 3 años.
+
+* Principios de diseño de Go
+- *Sencillez*.
+- Facilidad de lectura.
+- Velocidad de desarrollo.
+- Velocidad de ejecución.
+- Velocidad de compilación.
+- Sencillez de despliegue.
+- Uniformidad.
+
+* Características del lenguaje
+- Fuertemente tipado.
+- Recolección de basura automática.
+- Comprobaciones *muy*estrictas* en tiempo de compilación.
+- Concurrencia.
+- "Orientado a objetos".
+
+* Diseñado para evitar fallos
+- Go realiza comprobaciones fuertes en tiempo de compilación.
+- No se permiten variables no usadas ni imports innecesarios.
+- Tiene punteros, pero no hay aritmética de punteros.
+- Expresiones que podrían ser ambigüas no se permiten.
+- Desde Go 1.0, el orden de iteración de maps se aleatoriza a propósito.
+
+- Go incluye la palabra reservada *defer* para ejecutar código cuando la función acabe.
+
+* Sin usar defer
+
+.play meetup20161010/defer_sample_1.go /func getIPAddress/,/getIPAddress END/
+
+* Usando defer
+
+.play meetup20161010/defer_sample_2.go /func getIPAddress/,/getIPAddress END/
+
+* Casos de uso
+- [[http://talks.golang.org/2013/oscon-dl.slide][Google]] dl.google.com es un servidor Go.
+- [[https://github.com/youtube/vitess][Youtube]] Liberó y utiliza Vitess, una herramienta Go para escalar MySQL.
+- [[http://blog.parse.com/learn/how-we-moved-our-api-from-ruby-to-go-and-saved-our-sanity/][Facebook]] Han migrado su servicio Parse desde Ruby a Go.
+- [[https://blog.twitter.com/2015/handling-five-billion-sessions-a-day-in-real-time][Twitter]] Su servicio de analíticas corre en Go sobre AWS.
+- [[http://blog.mongodb.org/post/51643994762/go-agent-go][MongoDB]] El servicio de backups de MongoDB está escrito en Go, así como las mongotools desde MongoDB 3.0.
+- [[http://www.slideshare.net/jpetazzo/docker-and-go-why-did-we-decide-to-write-docker-in-go][Docker]] Plataforma abierta de creación, distribución y ejecución de containers.
+- [[http://word.bitly.com/post/33232969144/nsq][Bitly]] Han liberado NSQ, una plataforma de mensajería en tiempo real.
+- [[http://news.ntppool.org/2012/10/new-dns-server.html][pool.ntp.org]] Ya dispone de servidores hechos en Go.
+- [[http://blog.cloudflare.com/go-at-cloudflare][CloudFlare]], [[https://www.youtube.com/watch?v=7QDVRowyUQA][Canonical]], [[http://www.digitalocean.com/company/blog/get-your-development-team-started-with-go/][DigitalOcean]], [[https://tech.dropbox.com/2014/07/open-sourcing-our-go-libraries/][Dropbox]] y muchos, muchos otros.
+.link https://github.com/golang/go/wiki/GoUsers
