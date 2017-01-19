@@ -1,0 +1,193 @@
+Go para principiantes
+II meetup Gophers Murcia
+19 Jan 2017
+Tags: go, golang, gopher, intro
+
+Antonio Nicolás Pina
+Freelance Android & Go
+hi@anpez.es
+https://anpez.es
+@ANPez
+
+* Go 1.0 publicado en Marzo de 2012
+.image images/gopherbw.png 300 300
+
+: Sigue un repaso de lo que hablamos en el anterior meetup
+
+* Lenguaje para desarrolladores
+- En 2007, varios desarrolladores de Google se plantean la necesidad de un nuevo lenguaje de programación.
+- No ha habido grandes avances en casi una década.
+- PHP, Ruby, Java y javascript nacieron en el año 1995
+- En 2009 Google presenta oficialmente Go, aunque la versión estable tardaría 3 años.
+
+: C# es del 2000.
+
+* Principios de diseño de Go
+- *Sencillez*.
+- Facilidad de lectura.
+- Velocidad de desarrollo.
+- Velocidad de ejecución.
+- Velocidad de compilación.
+- Sencillez de despliegue.
+- Uniformidad.
+
+: en este orden!
+
+* Características del lenguaje
+- Fuertemente tipado.
+- Recolección de basura automática.
+- Comprobaciones *muy*estrictas* en tiempo de compilación.
+- Concurrencia.
+- "Orientado a objetos".
+
+* Diseñado para evitar fallos
+- Go realiza comprobaciones fuertes en tiempo de compilación.
+- No se permiten variables no usadas ni imports innecesarios.
+- Tiene punteros, pero no hay aritmética de punteros.
+- Expresiones que podrían ser ambigüas no se permiten.
+- Desde Go 1.0, el orden de iteración de maps se aleatoriza a propósito.
+
+: vamos a jugar a un juego...
+
+* Let's play a game
+  int (*(*(*f3)(int))(double))(float);
+
+* En C
+  int (*(*(*f3)(int))(double))(float);
+
+            f3                           -- f3
+           *f3                           -- is a pointer
+          (*f3)(   )                     -- to a function
+          (*f3)(int)                     --   taking an int parameter
+         *(*f3)(int)                     --   returning a pointer
+        (*(*f3)(int))(      )            --   to a function
+        (*(*f3)(int))(double)            --     taking a double parameter
+       *(*(*f3)(int))(double)            --     returning a pointer
+      (*(*(*f3)(int))(double))(     )    --     to a function
+      (*(*(*f3)(int))(double))(float)    --       taking a float parameter
+  int (*(*(*f3)(int))(double))(float)    --       returning int
+
+.link http://stackoverflow.com/questions/10758811/c-syntax-for-functions-returning-function-pointers Fuente: StackOverflow
+
+vs
+
+  func f3(int) func(float64) func(float32) int
+
+* Vamos al lío
+.image images/gopherswrench.png 500 845
+
+* Definiendo el entorno de trabajo
+- Tras instalar el entorno de Go, tenemos que definir GOPATH.
+- GOPATH es la base donde van a residir *TODOS* nuestros proyectos.
+- En *$GOPATH/src* estará todo nuestro código.
+- En *$GOPATH/bin* estarán los ejecutables.
+- En mi caso: *GOPATH=~/dev/go*
+- Estas transparencias las tengo en $GOPATH/src/*github.com/ANPez/gotalks*
+
+- GOROOT es el path hacia la instalación de Go, por defecto /usr/local/go en GNU/Linux o Mac, C:\Go en Windows.
+
+* Paquetes
+- Todo el código debe estar organizado en _package_ 's.
+- Sólo hay un paquete especial, y es _main_, que contiene el inicio del ejecutable.
+- Para poder utilizarlos, se han de importar, con *import*.
+- Todas las dependencias se incluyen directamente en el fichero compilado.
+- Por esto, Go *no* permite hacer import de paquetes que no se utilicen, ya que aumentan el tamaño del ejecutable de forma innecesaria.
+- Según su procedencia, hay dos tipos de *import*.
+- Ambos se usan utilizando como prefijo la última parte del import path.
+
+* Paquetes (y II)
+- Si se utiliza otro paquete, se añade utilizando la URL, y se instala en nuestro sistema utilizando *go*get*, por ejemplo:
+  go get github.com/gorilla/websocket
+
+- Si se utiliza un paquete proveniente de la _stdlib_, simplemente se añade su nombre.
+
+  package middlewares
+
+  import (
+    "github.com/ANPez/sampleproject/models"
+    "github.com/gorilla/websocket"
+    "fmt"
+    "io"
+    "io/ioutil"
+    "net/http"
+  )
+  ...
+  func test() {
+    result, err := json.Marshal(obj)
+
+* ¡A trabajar!
+.image images/gopherhelmet.png 500 362
+
+* Obten los 10 primeros comics de XKCD
+- Utilizando su API:
+
+  http://xkcd.com/{comicid}/info.0.json
+
+* Función getURL
+
+.play meetup20170119/xkcd_1.go /func getURL/,/getURL END/
+
+* Struct
+- La base de la "orientación a objetos", es lo que se llama *struct*.
+- Al igual que el resto de tipos de Go, los miembros de los structs siempre se inicializan a su *zero-value*.
+
+.play meetup20170119/struct1.go /STARTMAIN/,/STOPMAIN/
+
+: Con mayúscula los públicos, con minúscula, los privados.
+: Al ejecutar sale un & por el puntero.
+
+* struct (II)
+- A un struct se le pueden asociar métodos, como en un lenguaje orientado a objetos.
+- Sin embargo, en Go *siempre* se pasan los parámetros por valor, por lo que el método recibe una copia del struct.
+
+.play meetup20170119/struct2.go /STARTMAIN/,/STOPMAIN/
+
+* struct (y III)
+- Si un método necesita modificar el estado interno del *struct*, tenemos que declarar el método con un puntero como receptor.
+
+.play meetup20170119/struct3.go /STARTMAIN/,/STOPMAIN/
+
+* Concurrencia
+
+- Go facilita la creación de programas multihilo usando _Goroutines_.
+- Para lanzar una nueva _goroutine_ es tán fácil como prefijar con la palabra *go* la llamada a cualquier función:
+
+  go cualquierFuncion(...)
+
+- El modelo de memoria es diferente a un lenguaje tradicional.
+
+  Do not communicate by sharing memory; instead, share memory by communicating.
+
+- Usamos canales en lugar de locks y memoria compartida (aunque podemos usar locks, si queremos).
+ 
+: Goroutine -> corutina
+
+* 
+
+.image images/locke.jpg 295 590
+
+* Canales
+- Un canal es un "pipe" atómico, tipado e *iterable*, donde pueden leer y escribir concurrentemente múltiples consumidores/productores.
+- Por supuesto, es completamente thread-safe.
+- Un canal puede incluir un buffer, para permitir escribir si no hay nadie bloqueado leyendo.
+
+  c := make(chan int)
+  c <- 1
+  x := <- c
+
+- La dirección de la flecha indica la dirección del flujo de datos.
+
+* ¡A trabajar!
+.image images/gopherfiveyears.png 500 861
+
+* Paraleliza la obtención de URLs
+
+- Utilizando canales, haz que las peticiones a la API de XKCD sean en paralelo.
+
+* Inicialización
+
+.code meetup20170119/xkcd_2.go /INIT START/,/INIT END/
+
+* Procesamiento
+
+.play meetup20170119/xkcd_2.go /Process START/,/Process END/
