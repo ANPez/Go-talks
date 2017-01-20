@@ -10,11 +10,11 @@ import (
 	"net/http"
 )
 
-const URL = "http://xkcd.com/%d/info.0.json"
+const url = "http://xkcd.com/%d/info.0.json"
 
-func getURL(comicID int) (string, error) {
-	url := fmt.Sprintf(URL, comicID)
-	resp, err := http.Get(url)
+func getURL(id int) (string, error) {
+	u := fmt.Sprintf(url, id)
+	resp, err := http.Get(u)
 	if nil != err {
 		return "", err
 	}
@@ -36,50 +36,35 @@ func getURL(comicID int) (string, error) {
 }
 
 // INIT START OMIT
-type response struct {
-	ID  int
-	URL string
-	Err error
-}
 
 func main() {
-	c1 := make(chan int)
-	c2 := make(chan response)
-	cExit := make(chan struct{})
+	requests := make(chan int)
+	exitCh := make(chan struct{})
 
 	for i := 0; i < 3; i++ {
-		go func() { // HL
-			for id := range c1 {
+		go func() {
+			for id := range requests {
 				url, err := getURL(id)
-				c2 <- response{id, url, err}
+				if nil != err {
+					log.Println(err)
+				} else {
+					log.Printf("Got URL for id %d: %s", id, url)
+				}
 			}
-			cExit <- struct{}{}
+			exitCh <- struct{}{}
 		}()
 	}
 	// INIT END OMIT
 
 	// Process START OMIT
-	go func() {
-		for r := range c2 {
-			if nil != r.Err {
-				log.Println(r.Err)
-			} else {
-				log.Printf("Found url for XKCD %d: %s", r.ID, r.URL)
-			}
-		}
-		cExit <- struct{}{}
-	}()
 
 	for i := 1; i <= 10; i++ {
-		c1 <- i
+		requests <- i
 	}
-	close(c1) // HL
+	close(requests) // HL
 
 	for i := 0; i < 3; i++ {
-		<-cExit
+		<-exitCh
 	}
-
-	close(c2) // HL
-	<-cExit
 	// Process END OMIT
 }
